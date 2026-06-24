@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فكّها</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0D1117;
+    --surface:   #161B22;
+    --surface2:  #21262D;
+    --border:    #30363D;
+    --gold:      #F5C842;
+    --gold-dim:  #8B7013;
+    --green:     #2EA043;
+    --green-bg:  #0D3321;
+    --amber:     #D29922;
+    --amber-bg:  #2D1F00;
+    --muted:     #484F58;
+    --text:      #E6EDF3;
+    --text-dim:  #7D8590;
+    --red:       #DA3633;
+    --radius:    10px;
+    --radius-lg: 16px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Naskh Arabic', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  header {
+    width: 100%;
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+  .header-badge {
+    font-size: 12px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
+  }
+
+  /* ── MAIN ── */
+  main {
+    width: 100%;
+    max-width: 480px;
+    padding: 1.5rem 1rem 3rem;
+    flex: 1;
+  }
+
+  /* ── SETUP SCREEN ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .setup-title {
+    text-align: center;
+    margin: 1.5rem 0 1.75rem;
+  }
+  .setup-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .setup-title h1 span { color: var(--gold); }
+  .setup-title p { font-size: 14px; color: var(--text-dim); }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .setup-section { margin-bottom: 1.5rem; }
+
+  /* toggle pills */
+  .toggle-group {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    gap: 4px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 9px 0;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .toggle-btn.on {
+    background: var(--surface2);
+    color: var(--text);
+    box-shadow: 0 0 0 1px var(--border);
+  }
+  .toggle-btn.on.gold { color: var(--gold); box-shadow: 0 0 0 1px var(--gold-dim); }
+
+  /* digit picker */
+  .picker-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    direction: ltr;
+    margin-top: 8px;
+  }
+  .picker-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .picker-lbl { font-size: 11px; color: var(--text-dim); direction: rtl; }
+  .picker-ctrl { display: flex; align-items: center; gap: 6px; }
+  .pick-arr {
+    width: 30px; height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .pick-arr:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .pick-digit {
+    width: 52px; height: 52px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s;
+  }
+  .pick-digit.dup { border-color: var(--red); color: var(--red); }
+  .pick-sep { font-size: 20px; color: var(--muted); margin-top: 22px; }
+
+  .err-hint { font-size: 12px; color: var(--red); text-align: center; min-height: 18px; margin-top: 8px; }
+
+  /* rules */
+  .rules-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 2;
+  }
+  .hint-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hint-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .hint-chip.correct { background: var(--green-bg); color: #3FB950; }
+  .hint-chip.wrong-pos { background: var(--amber-bg); color: #D29922; }
+  .hint-chip.absent { background: var(--surface2); color: var(--text-dim); }
+
+  /* start button */
+  .start-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--gold);
+    color: #0D1117;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .start-btn:hover:not(:disabled) { opacity: 0.9; }
+  .start-btn:active:not(:disabled) { transform: scale(0.98); }
+  .start-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── GAME SCREEN ── */
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+  .game-header h2 { font-size: 18px; font-weight: 600; }
+  .game-meta { display: flex; gap: 10px; align-items: center; }
+  .meta-pill {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    background: var(--surface);
+  }
+  .meta-pill.count { color: var(--gold); border-color: var(--gold-dim); }
+  .new-game-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .new-game-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+  /* input area */
+  .input-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .input-area label { font-size: 13px; color: var(--text-dim); display: block; margin-bottom: 10px; }
+  .input-row { display: flex; gap: 8px; align-items: center; }
+  .guess-field {
+    height: 46px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    width: 100px;
+    letter-spacing: 4px;
+    direction: ltr;
+    transition: border-color 0.15s;
+  }
+  .guess-field:focus { outline: none; border-color: var(--gold-dim); }
+  .guess-field.invalid { border-color: var(--red); }
+  .check-btn {
+    flex: 1;
+    height: 46px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--gold);
+    color: var(--bg);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .check-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* history */
+  .history-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .hist-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    direction: ltr;
+    animation: slide-in 0.2s ease;
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hist-n { font-size: 12px; color: var(--muted); min-width: 24px; }
+  .hint-tiles { display: flex; gap: 6px; }
+  .hint-tile {
+    width: 52px; height: 52px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+  }
+  .tile-digit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .tile-sym { font-size: 13px; line-height: 1; }
+  .hint-tile.correct { background: var(--green-bg); color: #3FB950; border: 1px solid #1a5c28; }
+  .hint-tile.wrong-pos { background: var(--amber-bg); color: #D29922; border: 1px solid #5a3d00; }
+  .hint-tile.absent { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
+  .hint-tile.t3 { width: 46px; height: 52px; }
+  .hint-tile.t3 .tile-digit { font-size: 16px; }
+  .hint-tile.t3 .tile-sym { font-size: 12px; }
+
+  /* win banner */
+  .win-banner {
+    background: linear-gradient(135deg, #0D3321, #1a4d30);
+    border: 1px solid #2EA043;
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    animation: pop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes pop {
+    from { transform: scale(0.9); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .win-icon { font-size: 36px; margin-bottom: 6px; }
+  .win-title { font-size: 20px; font-weight: 700; color: #3FB950; margin-bottom: 4px; }
+  .win-sub { font-size: 14px; color: var(--text-dim); }
+  .win-secret {
+    display: inline-flex;
+    gap: 6px;
+    margin-top: 12px;
+    direction: ltr;
+  }
+  .win-digit {
+    width: 40px; height: 40px;
+    background: var(--green-bg);
+    border: 1px solid #2EA043;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #3FB950;
+  }
+
+  /* empty state */
+  .empty-state {
+    text-align: center;
+    padding: 2rem 0 1rem;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  .empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+
+  /* responsive */
+  @media (max-width: 400px) {
+    .hint-tile { width: 46px; height: 46px; }
+    .hint-tile.t3 { width: 40px; height: 46px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    فكّها
+  </div>
+  <div class="header-badge">فكّها ١.٠</div>
+</header>
+
+<main>
+
+  <!-- SETUP -->
+  <div id="setupScreen" class="screen active">
+    <div class="setup-title">
+      <h1><span>فكّها</span> إن قدرت</h1>
+      <p>استخدم المنطق والاستنتاج للوصول إليه</p>
+    </div>
+
+    <div class="setup-section">
+      <div class="section-label">وضع اللعب</div>
+      <div class="toggle-group">
+        <button class="toggle-btn on gold" id="modeVs" onclick="setMode('vs')">🤝 لاعب ضد لاعب</button>
+        <button class="toggle-btn" id="modeAI" onclick="setMode('ai')">🤖 ضد الذكاء الاصطناعي</button>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <div class="section-label">عدد الخانات</div>
+      <div class="toggle-group">
+        <button class="toggle-btn on gold" id="len2" onclick="setLen(2)">خانتان</button>
+        <button class="toggle-btn" id="len3" onclick="setLen(3)">ثلاث خانات</button>
+      </div>
+    </div>
+
+    <div class="setup-section" id="pickerSection">
+      <div class="section-label">الرقم السري</div>
+      <div class="picker-row" id="pickerRow"></div>
+      <div class="err-hint" id="errHint"></div>
+    </div>
+
+    <div class="setup-section">
+      <div class="section-label">التلميحات</div>
+      <div class="rules-card">
+        <div class="hint-legend">
+          <span class="hint-chip correct">✅ مكانه صحيح</span>
+          <span class="hint-chip wrong-pos">🟡 موجود لكن مكانه خاطئ</span>
+          <span class="hint-chip absent">❌ غير موجود</span>
+        </div>
+        أرقام ٠–٩ · لا يتكرر رقم في أكثر من خانة · التلميح يعكس ترتيب الإدخال
+      </div>
+    </div>
+
+    <button class="start-btn" id="startBtn" onclick="startGame()">ابدأ اللعبة</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen" class="screen">
+    <div class="game-header">
+      <div>
+        <h2>فكّها</h2>
+      </div>
+      <div class="game-meta">
+        <span class="meta-pill count" id="attCount">٠ محاولة</span>
+        <span class="meta-pill" id="modePill">لاعب ضد لاعب</span>
+        <button class="new-game-btn" onclick="resetGame()">↺ جديد</button>
+      </div>
+    </div>
+
+    <div id="winBanner" style="display:none"></div>
+
+    <div class="input-area" id="inputArea">
+      <label id="inputLabel">أدخل تخمينك — أرقام مختلفة من ٠ إلى ٩</label>
+      <div class="input-row">
+        <input class="guess-field" id="guessField" type="text" inputmode="numeric"
+               maxlength="3" autocomplete="off" placeholder="00"
+               oninput="onGuessInput()" onkeydown="if(event.key==='Enter')checkGuess()" />
+        <button class="check-btn" id="checkBtn" onclick="checkGuess()" disabled>تحقق</button>
+      </div>
+    </div>
+
+    <div class="history-wrap" id="historyWrap">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🎯</div>
+        <div>أدخل أول تخمين لتبدأ</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let mode = 'vs', len = 2, secret = '', attempts = 0, over = false;
+let digs = [0, 1];
+const names = { 2: ['الأولى','الثانية'], 3: ['الأولى','الثانية','الثالثة'] };
+const arabicNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+
+function toAr(n) { return String(n).split('').map(d => arabicNums[+d]).join(''); }
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('modeVs').className = 'toggle-btn' + (m==='vs'?' on gold':'');
+  document.getElementById('modeAI').className = 'toggle-btn' + (m==='ai'?' on gold':'');
+  document.getElementById('pickerSection').style.display = m==='ai' ? 'none' : 'block';
+  validate();
+}
+
+function setLen(l) {
+  len = l;
+  document.getElementById('len2').className = 'toggle-btn' + (l===2?' on gold':'');
+  document.getElementById('len3').className = 'toggle-btn' + (l===3?' on gold':'');
+  digs = l===2 ? [0,1] : [0,1,2];
+  document.getElementById('guessField').maxLength = l;
+  document.getElementById('guessField').placeholder = l===2?'00':'000';
+  renderPicker();
+  validate();
+}
+
+function renderPicker() {
+  const row = document.getElementById('pickerRow');
+  row.innerHTML = '';
+  digs.forEach((d, i) => {
+    if (i > 0) {
+      const sep = document.createElement('div');
+      sep.className = 'pick-sep';
+      sep.textContent = '—';
+      row.appendChild(sep);
+    }
+    const cell = document.createElement('div');
+    cell.className = 'picker-cell';
+    cell.innerHTML = `
+      <div class="picker-lbl">الخانة ${names[len][i]}</div>
+      <div class="picker-ctrl">
+        <button class="pick-arr" onclick="moveDig(${i},-1)">▼</button>
+        <div class="pick-digit" id="pd${i}">${d}</div>
+        <button class="pick-arr" onclick="moveDig(${i},1)">▲</button>
+      </div>`;
+    row.appendChild(cell);
+  });
+}
+
+function moveDig(i, dir) {
+  digs[i] = (digs[i] + dir + 10) % 10;
+  document.getElementById('pd' + i).textContent = digs[i];
+  validate();
+}
+
+function hasDup(arr) { return new Set(arr).size !== arr.length; }
+
+function validate() {
+  const err = document.getElementById('errHint');
+  const btn = document.getElementById('startBtn');
+  if (mode === 'ai') { err.textContent = ''; btn.disabled = false; return; }
+  const dup = hasDup(digs);
+  digs.forEach((_, i) => {
+    const el = document.getElementById('pd'+i);
+    if (el) el.classList.toggle('dup', dup);
+  });
+  if (dup) {
+    err.textContent = 'يجب أن تكون جميع الأرقام مختلفة!';
+    btn.disabled = true;
+  } else {
+    err.textContent = '';
+    btn.disabled = false;
+  }
+}
+
+function genRandom(n) {
+  const pool = [0,1,2,3,4,5,6,7,8,9];
+  const res = [];
+  while (res.length < n) {
+    const i = Math.floor(Math.random() * pool.length);
+    res.push(pool.splice(i,1)[0]);
+  }
+  return res.join('');
+}
+
+function startGame() {
+  secret = mode === 'ai' ? genRandom(len) : digs.join('');
+  attempts = 0; over = false;
+  document.getElementById('setupScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  document.getElementById('historyWrap').innerHTML = '<div class="empty-state" id="emptyState"><div class="empty-icon">🎯</div><div>أدخل أول تخمين لتبدأ</div></div>';
+  document.getElementById('winBanner').style.display = 'none';
+  document.getElementById('inputArea').style.display = 'block';
+  document.getElementById('guessField').value = '';
+  document.getElementById('guessField').disabled = false;
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('attCount').textContent = '٠ محاولة';
+  document.getElementById('modePill').textContent = mode==='ai' ? '🤖 ضد الذكاء' : '🤝 لاعب ضد لاعب';
+  document.getElementById('inputLabel').textContent = len===2 ? 'أدخل تخمينك — رقمان مختلفان (٠-٩)' : 'أدخل تخمينك — ثلاثة أرقام مختلفة (٠-٩)';
+  document.getElementById('guessField').focus();
+}
+
+function onGuessInput() {
+  const v = document.getElementById('guessField').value;
+  const ok = v.length === len && /^\d+$/.test(v) && !hasDup(v.split(''));
+  document.getElementById('checkBtn').disabled = !ok;
+  document.getElementById('guessField').classList.toggle('invalid',
+    v.length === len && (!ok));
+}
+
+function getHints(guess, sec) {
+  return guess.split('').map((ch, i) => {
+    if (ch === sec[i]) return 'correct';
+    if (sec.includes(ch)) return 'wrong-pos';
+    return 'absent';
+  });
+}
+
+function checkGuess() {
+  if (over) return;
+  const v = document.getElementById('guessField').value.trim();
+  if (v.length !== len || !/^\d+$/.test(v) || hasDup(v.split(''))) return;
+
+  attempts++;
+  const hints = getHints(v, secret);
+  const es = document.getElementById('emptyState');
+  if (es) es.remove();
+
+  const wrap = document.getElementById('historyWrap');
+  const entry = document.createElement('div');
+  entry.className = 'hist-entry';
+  const tiles = hints.map((h, i) => {
+    const cls = len===3 ? `hint-tile ${h} t3` : `hint-tile ${h}`;
+    const sym = h==='correct' ? '✅' : h==='wrong-pos' ? '🟡' : '❌';
+    return `<div class="${cls}"><span class="tile-digit">${v[i]}</span><span class="tile-sym">${sym}</span></div>`;
+  }).join('');
+  entry.innerHTML = `
+    <div class="hist-n">#${attempts}</div>
+    <div class="hint-tiles">${tiles}</div>`;
+  wrap.insertBefore(entry, wrap.firstChild);
+
+  const countEl = document.getElementById('attCount');
+  countEl.textContent = toAr(attempts) + (attempts===1?' محاولة':' محاولات');
+
+  if (hints.every(h => h==='correct')) {
+    over = true;
+    document.getElementById('inputArea').style.display = 'none';
+    const star = attempts<=3?'🥇':attempts<=6?'🥈':'🥉';
+    const secretTiles = secret.split('').map(d => `<div class="win-digit">${d}</div>`).join('');
+    document.getElementById('winBanner').innerHTML = `
+      <div class="win-banner">
+        <div class="win-icon">${star}</div>
+        <div class="win-title">أحسنت!</div>
+        <div class="win-sub">وجدت الرقم السري في ${toAr(attempts)} ${attempts===1?'محاولة':'محاولات'}</div>
+        <div class="win-secret">${secretTiles}</div>
+      </div>`;
+    document.getElementById('winBanner').style.display = 'block';
+  } else {
+    document.getElementById('guessField').value = '';
+    document.getElementById('guessField').classList.remove('invalid');
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('guessField').focus();
+  }
+}
+
+function resetGame() {
+  digs = len===2 ? [0,1] : [0,1,2];
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('setupScreen').classList.add('active');
+  renderPicker();
+  validate();
+}
+
+renderPicker();
+validate();
+</script>
+</body>
+</html>
