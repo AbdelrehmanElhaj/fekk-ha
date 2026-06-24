@@ -4,24 +4,6 @@
 </div>
 
 <div class="setup-section">
-  <div class="section-label">وضع اللعب</div>
-  <div class="toggle-group">
-    <button
-      class="toggle-btn"
-      [class.on]="mode() === 'vs'"
-      [class.gold]="mode() === 'vs'"
-      (click)="setMode('vs')"
-    >🤝 لاعب ضد لاعب</button>
-    <button
-      class="toggle-btn"
-      [class.on]="mode() === 'ai'"
-      [class.gold]="mode() === 'ai'"
-      (click)="setMode('ai')"
-    >🤖 ضد الذكاء الاصطناعي</button>
-  </div>
-</div>
-
-<div class="setup-section">
   <div class="section-label">عدد الخانات</div>
   <div class="toggle-group">
     <button
@@ -39,28 +21,6 @@
   </div>
 </div>
 
-@if (mode() === 'vs') {
-  <div class="setup-section">
-    <div class="section-label">الرقم السري</div>
-    <div class="picker-row">
-      @for (d of digs(); track $index; let i = $index) {
-        @if (i > 0) {
-          <div class="pick-sep">—</div>
-        }
-        <div class="picker-cell">
-          <div class="picker-lbl">الخانة {{ names[len()][i] }}</div>
-          <div class="picker-ctrl">
-            <button class="pick-arr" (click)="moveDig(i, -1)">▼</button>
-            <div class="pick-digit" [class.dup]="hasDup()">{{ d }}</div>
-            <button class="pick-arr" (click)="moveDig(i, 1)">▲</button>
-          </div>
-        </div>
-      }
-    </div>
-    <div class="err-hint">{{ hasDup() ? 'يجب أن تكون جميع الأرقام مختلفة!' : '' }}</div>
-  </div>
-}
-
 <div class="setup-section">
   <div class="section-label">التلميحات</div>
   <div class="rules-card">
@@ -73,4 +33,4 @@
   </div>
 </div>
 
-<button class="start-btn" [disabled]="!canStart()" (click)="startGame()">ابدأ اللعبة</button>
+<button class="start-btn" (click)="startGame()">ابدأ اللعبة</button>
