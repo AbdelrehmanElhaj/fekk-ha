@@ -1,0 +1,31 @@
+:root {
+  --bg:        #0D1117;
+  --surface:   #161B22;
+  --surface2:  #21262D;
+  --border:    #30363D;
+  --gold:      #F5C842;
+  --gold-dim:  #8B7013;
+  --green:     #2EA043;
+  --green-bg:  #0D3321;
+  --amber:     #D29922;
+  --amber-bg:  #2D1F00;
+  --muted:     #484F58;
+  --text:      #E6EDF3;
+  --text-dim:  #7D8590;
+  --red:       #DA3633;
+  --radius:    10px;
+  --radius-lg: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Naskh Arabic', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

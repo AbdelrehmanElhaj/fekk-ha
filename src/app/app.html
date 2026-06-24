@@ -1,0 +1,16 @@
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    فكّها
+  </div>
+  <div class="header-badge">فكّها ١.٠</div>
+</header>
+
+<main>
+  @if (screen() === 'setup') {
+    <app-setup (start)="onStart($event)" />
+  }
+  @if (screen() === 'game') {
+    <app-game [config]="config()!" (newGame)="onNewGame()" />
+  }
+</main>

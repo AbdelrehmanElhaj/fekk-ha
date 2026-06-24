@@ -1,2 +1,2 @@
 name = "bisha-game-web"
-pages_build_output_dir = "."
+pages_build_output_dir = "dist/bisha-game-web/browser"
